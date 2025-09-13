@@ -1,0 +1,13 @@
+create table public.inscricoes (
+  id bigserial primary key,
+  tipo text not null,
+  nome text not null,
+  nascimento date,
+  cpf text,
+  rg text,
+  escolaridade text,
+  cidade text,
+  bairro text,
+  horario text,
+  created_at timestamptz default now()
+);
