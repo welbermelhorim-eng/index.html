@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Cadastro</title></head>
+<body>
+  <h2>Cadastro de Estudantes</h2>
+  <form id="formCadastro">
+    <label>Tipo:
+      <select name="tipo">
+        <option value="aprendiz">Aprendiz</option>
+        <option value="estagiario">Estagiário</option>
+      </select>
+    </label><br>
+    <label>Nome: <input name="nome" required></label><br>
+    <label>Data Nasc: <input name="nascimento" type="date"></label><br>
+    <label>CPF: <input name="cpf"></label><br>
+    <label>RG: <input name="rg"></label><br>
+    <label>Escolaridade: <input name="escolaridade"></label><br>
+    <label>Cidade: <input name="cidade"></label><br>
+    <label>Bairro: <input name="bairro"></label><br>
+    <label>Horário: <input name="horario"></label><br>
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    document.getElementById('formCadastro').addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target));
+      const res = await fetch('/api/inscricao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      if (json.ok) alert('Inscrição enviada com sucesso!');
+      else alert('Erro: ' + (json.error || 'unknown'));
+    });
+  </script>
+</body>
+</html>
