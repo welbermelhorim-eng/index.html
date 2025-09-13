@@ -1,0 +1,7 @@
+git init
+git add .
+git commit -m "Initial commit - cadastro + api"
+# crie um repositório novo no GitHub (via site) e copie a URL (HTTPS)
+git branch -M main
+git remote add origin https://github.com/SEU_USUARIO/NOME_REPO.git
+git push -u origin main
