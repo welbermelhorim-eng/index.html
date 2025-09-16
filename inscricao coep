@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Estudantes</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #eef2f7; }
+    .container { max-width: 800px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    h2, h3, h4 { color: #2c3e50; margin-bottom: 15px; }
+    label { display: block; margin-top: 12px; font-weight: 600; color: #34495e; }
+    input, select { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccd1d9; border-radius: 8px; font-size: 14px; }
+    .hidden { display: none; }
+    button { margin-top: 20px; padding: 12px 20px; background: #3498db; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: background 0.3s; }
+    button:hover { background: #2980b9; }
+    .form-section { margin-bottom: 20px; }
+    .topo { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .topo button { margin:0; padding:8px 16px; font-size:14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topo">
+      <h2>Cadastro de Estudantes</h2>
+      <button onclick="abrirLogin()">Acesso Administrativo</button>
+    </div>
+
+    <label for="tipo">Selecione o tipo de inscrição:</label>
+    <select id="tipo" onchange="mostrarFormulario()">
+      <option value="">-- Selecione --</option>
+      <option value="aprendiz">Aprendiz</option>
+      <option value="estagiario">Estagiário</option>
+    </select>
+
+    <!-- Formulário Aprendiz -->
+    <form id="formAprendiz" class="hidden" onsubmit="salvarInscricao(event,'aprendiz')">
+      <h3>Inscrição - Aprendiz</h3>
+      <div class="form-section">
+        <label>Nome Completo:</label><input type="text" name="Nome Completo:" required>
+        <label>Data de Nascimento:</label><input type="date" name="Data de Nascimento:" required>
+        <label>CPF:</label><input type="text" name="CPF:" required>
+        <label>RG:</label><input type="text" name="RG:" required>
+        <label>CTPS:</label><input type="text" name="CTPS:" required>
+        <label>Série da CTPS:</label><input type="text" name="Série da CTPS:">
+        <label>Escolaridade:</label><input type="text" name="Escolaridade:">
+        <label>Nome da Escola:</label><input type="text" name="Nome da Escola:">
+        <label>Horário que estuda:</label><input type="text" name="Horário que estuda:">
+        <label>Série que estuda:</label><input type="text" name="Série que estuda:">
+      </div>
+
+      <div class="form-section">
+        <h4>Endereço</h4>
+        <label>Rua/Avenida:</label><input type="text" name="Rua/Avenida:">
+        <label>Número:</label><input type="text" name="Número:">
+        <label>Bairro:</label>
+        <select name="Bairro:">
+          <option value="">Selecione</option>
+          <option>Avisos</option><option>Bebedouro</option><option>Centro</option><option>Shell</option>
+        </select>
+        <label>Cidade:</label>
+        <select name="Cidade:">
+          <option>Linhares</option><option>Vitória</option><option>Colatina</option>
+        </select>
+        <label>CEP:</label><input type="text" name="CEP:">
+      </div>
+
+      <button type="submit">Enviar Inscrição</button>
+    </form>
+
+    <!-- Formulário Estagiário -->
+    <form id="formEstagiario" class="hidden" onsubmit="salvarInscricao(event,'estagiario')">
+      <h3>Inscrição - Estagiário</h3>
+      <div class="form-section">
+        <label>Nome Completo:</label><input type="text" name="Nome Completo:" required>
+        <label>Data de Nascimento:</label><input type="date" name="Data de Nascimento:" required>
+        <label>CPF:</label><input type="text" name="CPF:" required>
+        <label>RG:</label><input type="text" name="RG:" required>
+        <label>CTPS:</label><input type="text" name="CTPS:" required>
+        <label>Série da CTPS:</label><input type="text" name="Série da CTPS:">
+        <label>Escolaridade:</label><input type="text" name="Escolaridade:">
+      </div>
+
+      <div class="form-section">
+        <h4>Endereço</h4>
+        <label>Rua/Avenida:</label><input type="text" name="Rua/Avenida:">
+        <label>Número:</label><input type="text" name="Número:">
+        <label>Bairro:</label>
+        <select name="Bairro:">
+          <option value="">Selecione</option>
+          <option>Avisos</option><option>Bebedouro</option><option>Centro</option><option>Shell</option>
+        </select>
+        <label>Cidade:</label>
+        <select name="Cidade:">
+          <option>Linhares</option><option>Vitória</option><option>Colatina</option>
+        </select>
+        <label>CEP:</label><input type="text" name="CEP:">
+      </div>
+
+      <button type="submit">Enviar Inscrição</button>
+    </form>
+  </div>
+
+  <!-- Firebase + Funções -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs } 
+      from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyC-PDt309XlfPG6airNgYkhN7-p7Aaj7Dg",
+  authDomain: "inscricao--coep.firebaseapp.com",
+  projectId: "inscricao--coep",
+  storageBucket: "inscricao--coep.firebasestorage.app",
+  messagingSenderId: "172522977772",
+  appId: "1:172522977772:web:a9b952789090e18d58e8c9"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Mostrar formulário
+    function mostrarFormulario(){
+      const tipo=document.getElementById("tipo").value;
+      document.getElementById("formAprendiz").classList.add("hidden");
+      document.getElementById("formEstagiario").classList.add("hidden");
+      if(tipo==="aprendiz") document.getElementById("formAprendiz").classList.remove("hidden");
+      if(tipo==="estagiario") document.getElementById("formEstagiario").classList.remove("hidden");
+    }
+
+    // Salvar inscrição no Firestore
+    async function salvarInscricao(e,tipo){
+      e.preventDefault();
+      const form=e.target;
+      const dados={};
+      new FormData(form).forEach((v,k)=>dados[k]=v);
+      dados["tipo"]=tipo;
+
+      try {
+        await addDoc(collection(db,"inscricoes"),dados);
+        alert("Inscrição salva com sucesso!");
+        form.reset();
+      } catch(err){
+        alert("Erro: "+err);
+      }
+    }
+
+    // Login administrador
+    function abrirLogin(){
+      const loginWin=window.open("", "Login", "width=400,height=300");
+      loginWin.document.write(`
+        <h3>Acesso Administrativo</h3>
+        <label>Usuário:</label><input type="text" id="usuario"><br>
+        <label>Senha:</label><input type="password" id="senha"><br><br>
+        <button onclick="validarLogin()">Entrar</button>
+        <script>
+          function validarLogin(){
+            const u=document.getElementById("usuario").value;
+            const s=document.getElementById("senha").value;
+            if(u==="admin" && s==="123456"){
+              window.opener.abrirPainel();
+              window.close();
+            }else{
+              alert("Usuário ou senha incorretos!");
+            }
+          }
+        <\/script>
+      `);
+    }
+
+    // Painel Administrativo
+    async function abrirPainel(){
+      const painel=window.open("","Painel","width=1000,height=600");
+      const querySnapshot=await getDocs(collection(db,"inscricoes"));
+
+      let rows="";
+      querySnapshot.forEach((docSnap)=>{
+        const item=docSnap.data();
+        rows+=`
+          <tr>
+            <td>${item.tipo||""}</td>
+            <td>${item["Nome Completo:"]||""}</td>
+            <td>${item["CPF:"]||""}</td>
+            <td>${item["Data de Nascimento:"]||""}</td>
+            <td>${item["Escolaridade:"]||""}</td>
+            <td>${item["Bairro:"]||""}</td>
+            <td>${item["Cidade:"]||""}</td>
+          </tr>
+        `;
+      });
+
+      painel.document.write(`
+        <html>
+        <head>
+          <title>Painel Administrativo</title>
+        </head>
+        <body>
+          <h2>Inscrições</h2>
+          <table border="1" cellpadding="6">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Nome</th>
+                <th>CPF</th>
+                <th>Data Nasc.</th>
+                <th>Escolaridade</th>
+                <th>Bairro</th>
+                <th>Cidade</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </body>
+        </html>
+      `);
+    }
+
+    // Disponibilizar funções
+    window.mostrarFormulario=mostrarFormulario;
+    window.salvarInscricao=salvarInscricao;
+    window.abrirLogin=abrirLogin;
+    window.abrirPainel=abrirPainel;
+  </script>
+<!-- Importar Firebase -->
+<script type="module">
+  // Import Firebase SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } 
+    from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+  const firebaseConfig = {
+  apiKey: "AIzaSyC-PDt309XlfPG6airNgYkhN7-p7Aaj7Dg",
+  authDomain: "inscricao--coep.firebaseapp.com",
+  projectId: "inscricao--coep",
+  storageBucket: "inscricao--coep.firebasestorage.app",
+  messagingSenderId: "172522977772",
+  appId: "1:172522977772:web:a9b952789090e18d58e8c9"
+};
+
+  // Inicializar
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Salvar inscrição
+  async function salvarInscricao(e, tipo) {
+    e.preventDefault();
+    const form = e.target;
+    const dados = {};
+    new FormData(form).forEach((v, k) => dados[k] = v);
+    dados["tipo"] = tipo;
+
+    try {
+      await addDoc(collection(db, "inscricoes"), dados);
+      alert("Inscrição salva com sucesso!");
+      form.reset();
+    } catch (error) {
+      alert("Erro ao salvar: " + error);
+    }
+  }
+
+  // Painel administrativo
+  async function abrirPainel() {
+    const painel = window.open("", "Painel", "width=1000,height=600");
+    const querySnapshot = await getDocs(collection(db, "inscricoes"));
+
+    let rows = "";
+    querySnapshot.forEach((docSnap) => {
+      const item = docSnap.data();
+      rows += `
+        <tr>
+          <td>${item.tipo || ""}</td>
+          <td>${item["Nome Completo:"] || ""}</td>
+          <td>${item["CPF:"] || ""}</td>
+          <td>${item["Data de Nascimento:"] || ""}</td>
+          <td>${item["Escolaridade:"] || ""}</td>
+          <td>${item["Bairro:"] || ""}</td>
+          <td>${item["Cidade:"] || ""}</td>
+        </tr>
+      `;
+    });
+
+    painel.document.write(`
+      <html>
+      <head><title>Painel Administrativo</title></head>
+      <body>
+        <h2>Inscrições</h2>
+        <table border="1" cellpadding="6">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Nome</th>
+              <th>CPF</th>
+              <th>Data Nasc.</th>
+              <th>Escolaridade</th>
+              <th>Bairro</th>
+              <th>Cidade</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `);
+  }
+
+  // Tornar funções globais
+  window.salvarInscricao = salvarInscricao;
+  window.abrirPainel = abrirPainel;
+</script>
+
+</body>
+</html>
